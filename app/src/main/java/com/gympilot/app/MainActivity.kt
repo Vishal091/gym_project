@@ -87,7 +87,10 @@ private fun GymPilotApp() {
                     Page.Home -> Dashboard(members, { page = it }, { addOpen = true })
                     Page.Members -> MembersScreen(members, search, { search = it }, ::toggle)
                     Page.Attendance -> AttendanceScreen(members, ::toggle)
-                    Page.Dues -> DuesScreen(members)
+                    Page.Dues -> DuesScreen(members) { id ->
+                        val i = members.indexOfFirst { it.id == id }
+                        if (i >= 0) members[i] = members[i].copy(due = "Paid")
+                    }
                 }
             }
         }
@@ -205,7 +208,7 @@ private fun AttendanceScreen(members: List<Member>, toggle: (Int) -> Unit) {
 }
 
 @Composable
-private fun DuesScreen(members: List<Member>) {
+private fun DuesScreen(members: List<Member>, onPaid: (Int) -> Unit) {
     val dues = members.filter { it.due == "Overdue" || it.due == "Today" || it.due == "Not paid" }
     Column(Modifier.fillMaxSize().padding(horizontal = 20.dp)) {
         Spacer(Modifier.height(20.dp)); Text("Fee tracker", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Ink)
@@ -223,7 +226,7 @@ private fun DuesScreen(members: List<Member>) {
                         Column(Modifier.weight(1f)) { Text(m.name, color = Ink, fontWeight = FontWeight.Bold); Text("${m.plan} · Due ${m.due.lowercase()}", color = Muted, fontSize = 11.sp) }
                         Text("₹${m.fee}", color = Ink, fontWeight = FontWeight.Bold)
                     }
-                    Spacer(Modifier.height(10.dp)); Row(verticalAlignment = Alignment.CenterVertically) { Badge(m.due); Spacer(Modifier.weight(1f)); Text("Payment ledger coming next", color = Muted, fontSize = 10.sp) }
+                    Spacer(Modifier.height(10.dp)); Row(verticalAlignment = Alignment.CenterVertically) { Badge(m.due); Spacer(Modifier.weight(1f)); TextButton(onClick = { onPaid(m.id) }) { Text("Mark as paid", fontSize = 11.sp) } }
                 }
             }
         }
