@@ -162,7 +162,7 @@ private fun Dashboard(s: GymState, open: (Page) -> Unit, add: () -> Unit, profil
             Column(Modifier.fillMaxWidth().background(Forest, RoundedCornerShape(22.dp)).padding(18.dp)) {
                 Text("COLLECTED THIS MONTH", color = Mint, fontSize = 10.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
                 Text(formatRupees(paidThisMonth(s.payments, today)), color = Color.White, fontSize = 29.sp, fontWeight = FontWeight.Bold)
-                Text("Confirmed payment records only", color = Color.White.copy(alpha = .8f), fontSize = 11.sp)
+                Text("Demo transactions are included in this preview.", color = Color.White.copy(alpha = .8f), fontSize = 11.sp)
                 Spacer(Modifier.height(12.dp)); HorizontalDivider(color = Color.White.copy(alpha = .2f)); Spacer(Modifier.height(10.dp))
                 Text("Saved on this device. Cross-device sync requires a shared backend.", color = Color.White.copy(alpha = .85f), fontSize = 11.sp)
             }
@@ -175,7 +175,7 @@ private fun Dashboard(s: GymState, open: (Page) -> Unit, add: () -> Unit, profil
             Spacer(Modifier.height(9.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(9.dp)) {
                 Metric("Fee alerts", dueSoon.toString(), "Due within 7 days", Icons.Default.NotificationsActive, Modifier.weight(1f), true)
-                Metric("Expired", s.members.count { !isMembershipActive(it, today) }.toString(), "Outside active dates", Icons.Default.EventBusy, Modifier.weight(1f), true)
+                Metric("Expired", s.members.count { isMembershipExpired(it, today) }.toString(), "Outside active dates", Icons.Default.EventBusy, Modifier.weight(1f), true)
             }
         }
         item {
@@ -291,7 +291,7 @@ private fun MemberProfile(s: GymState, m: GymMember, onCheckIn: (Int) -> Unit, o
         Row(verticalAlignment = Alignment.CenterVertically) {
             Avatar(m.name); Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f)) { Text(m.name, color = Ink, fontWeight = FontWeight.Bold, fontSize = 20.sp); Text(m.phone, color = Muted, fontSize = 12.sp) }
-            DueBadge(if (isMembershipActive(m)) "Active" else "Expired")
+            DueBadge(membershipStatus(m))
         }
         Spacer(Modifier.height(13.dp))
         LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp), contentPadding = PaddingValues(bottom = 16.dp)) {
@@ -369,7 +369,7 @@ private fun MemberCard(m: GymMember, checkedIn: Boolean, toggle: () -> Unit, pro
         Row(verticalAlignment = Alignment.CenterVertically) {
             Avatar(m.name); Spacer(Modifier.width(9.dp))
             Column(Modifier.weight(1f)) { Text(m.name, color = Ink, fontWeight = FontWeight.Bold, fontSize = 14.sp); Text(m.phone, color = Muted, fontSize = 12.sp) }
-            DueBadge(if (isMembershipActive(m)) dueLabel(m.dueDate) else "Expired")
+            DueBadge(if (isMembershipActive(m)) dueLabel(m.dueDate) else membershipStatus(m))
         }
         Spacer(Modifier.height(9.dp)); HorizontalDivider(color = Border); Spacer(Modifier.height(7.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
