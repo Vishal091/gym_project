@@ -155,7 +155,7 @@ private fun Dashboard(s: GymState, open: (Page) -> Unit, add: () -> Unit, profil
         item {
             Text(today.format(DateTimeFormatter.ofPattern("EEEE, dd MMMM", Locale.getDefault())).uppercase(Locale.getDefault()), color = Muted, fontWeight = FontWeight.Bold, fontSize = 10.sp, letterSpacing = 1.sp)
             Spacer(Modifier.height(5.dp))
-            Text(when(today.hour) { in 5..11 -> "Good morning 👋"; in 12..16 -> "Good afternoon 👋"; else -> "Good evening 👋" }, fontSize = 27.sp, fontWeight = FontWeight.Bold, color = Ink)
+            Text(when(java.time.LocalTime.now().hour) { in 5..11 -> "Good morning 👋"; in 12..16 -> "Good afternoon 👋"; else -> "Good evening 👋" }, fontSize = 27.sp, fontWeight = FontWeight.Bold, color = Ink)
             Text("Here’s what’s happening at your gym.", color = Muted, fontSize = 13.sp)
         }
         item {
