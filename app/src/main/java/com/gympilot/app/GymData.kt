@@ -62,6 +62,24 @@ fun isMembershipActive(member: GymMember, today: LocalDate = LocalDate.now()): B
     }
 }
 
+
+fun isMembershipExpired(member: GymMember, today: LocalDate = LocalDate.now()): Boolean {
+    return try { LocalDate.parse(member.expiryDate).isBefore(today) } catch (_: DateTimeParseException) { false }
+}
+
+fun membershipStatus(member: GymMember, today: LocalDate = LocalDate.now()): String {
+    return try {
+        val start = LocalDate.parse(member.startDate)
+        when {
+            today.isBefore(start) -> "Not started"
+            isMembershipExpired(member, today) -> "Expired"
+            else -> "Active"
+        }
+    } catch (_: DateTimeParseException) {
+        "Date needed"
+    }
+}
+
 fun paidThisMonth(payments: List<PaymentRecord>, today: LocalDate = LocalDate.now()): Int {
     return payments.filter {
         try {
