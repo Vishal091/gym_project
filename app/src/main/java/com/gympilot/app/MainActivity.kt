@@ -448,6 +448,7 @@ private fun AddMemberDialog(plans: List<GymPlan>, existingPhones: List<String>, 
                 }
                 OutlinedTextField(start, { start = it }, label = { Text("Start (YYYY-MM-DD)") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
                 OutlinedTextField(expiry, { expiry = it }, label = { Text("Expiry (YYYY-MM-DD)") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                if (start.isNotBlank() && expiry.isNotBlank() && !datesValid) Text("Enter valid dates; expiry must be on or after start.", color = Alert, fontSize = 11.sp)
             }
         },
         confirmButton = { Button(onClick = { save(name, phone, plan, LocalDate.parse(start).toString(), LocalDate.parse(expiry).toString()) }, enabled = name.isNotBlank() && phoneValid && !duplicate && datesValid) { Text("Save member") } },
@@ -465,6 +466,7 @@ private fun EditDatesDialog(m: GymMember, dismiss: () -> Unit, save: (String, St
             OutlinedTextField(start, { start = it }, label = { Text("Start (YYYY-MM-DD)") }, singleLine = true)
             OutlinedTextField(expiry, { expiry = it }, label = { Text("Expiry (YYYY-MM-DD)") }, singleLine = true)
             OutlinedTextField(due, { due = it }, label = { Text("Next fee due (YYYY-MM-DD)") }, singleLine = true)
+            if (!valid) Text("Enter valid dates; expiry must be on or after start.", color = Alert, fontSize = 11.sp)
         } },
         confirmButton = { Button(onClick = { save(start, expiry, due) }, enabled = valid) { Text("Save dates") } },
         dismissButton = { TextButton(onClick = dismiss) { Text("Cancel") } }
