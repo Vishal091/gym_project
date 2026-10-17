@@ -30,6 +30,15 @@ class GymDataTest {
         assertFalse(isMembershipActive(member("2026-09-01", "2026-10-16"), LocalDate.parse("2026-10-17")))
     }
 
+    @Test fun futureMembershipIsNotMislabelledAsExpired() {
+        val today = LocalDate.parse("2026-10-17")
+        assertEquals("Not started", membershipStatus(member("2026-10-18", "2026-11-17"), today))
+        assertEquals("Expired", membershipStatus(member("2026-09-01", "2026-10-16"), today))
+        assertFalse(isMembershipExpired(member("2026-10-18", "2026-11-17"), today))
+        assertTrue(isMembershipExpired(member("2026-09-01", "2026-10-16"), today))
+    }
+
+
     @Test fun collectionCountsOnlyRecordedPaymentsWithinCurrentMonth() {
         val payments = listOf(
             PaymentRecord("1", 1, 1200, "2026-10-01", "Cash"),
