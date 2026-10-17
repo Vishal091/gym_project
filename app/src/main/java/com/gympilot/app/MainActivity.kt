@@ -130,6 +130,7 @@ private fun GymPilotApp() {
             selectedId = created.id; page = Page.Profile; addOpen = false
         }
         if (paymentMemberId != null) PaymentMethodDialog(
+            amount = state.members.firstOrNull { it.id == paymentMemberId }?.fee ?: 0,
             onDismiss = { paymentMemberId = null },
             onConfirm = { method ->
                 val id = paymentMemberId
@@ -470,3 +471,28 @@ private fun EditDatesDialog(m: GymMember, dismiss: () -> Unit, save: (String, St
     )
 }
 private fun formatRupees(amount: Int): String = java.text.NumberFormat.getCurrencyInstance(Locale("en", "IN")).apply { maximumFractionDigits = 0 }.format(amount)
+
+
+@Composable
+private fun PaymentMethodDialog(amount: Int, onDismiss: () -> Unit, onConfirm: (String) -> Unit) {
+    val methods = listOf("Cash", "UPI", "Bank transfer", "Card", "Other")
+    var selected by remember { mutableStateOf("Cash") }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Record payment", fontWeight = FontWeight.Bold) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text("Amount: " + formatRupees(amount), color = Ink, fontWeight = FontWeight.SemiBold)
+                Text("Choose how the member paid.", color = Muted, fontSize = 12.sp)
+                methods.forEach { method ->
+                    Row(Modifier.fillMaxWidth().clickable { selected = method }.padding(vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {
+                        RadioButton(selected == method, onClick = { selected = method })
+                        Text(method, color = Ink, fontSize = 13.sp)
+                    }
+                }
+            }
+        },
+        confirmButton = { Button(onClick = { onConfirm(selected) }) { Text("Confirm payment") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+    )
+}
