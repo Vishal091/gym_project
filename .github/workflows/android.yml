@@ -22,6 +22,8 @@ jobs:
         uses: android-actions/setup-android@v4
       - name: Install Android platform
         run: sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+      - name: Run unit tests
+        run: ./gradlew --no-daemon testDebugUnitTest
       - name: Assemble debug APK
         run: ./gradlew --no-daemon assembleDebug
       - name: Upload debug APK
