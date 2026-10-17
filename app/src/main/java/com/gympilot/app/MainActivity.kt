@@ -53,6 +53,7 @@ private fun GymPilotApp() {
     var page by remember { mutableStateOf(Page.Home) }
     var addOpen by remember { mutableStateOf(false) }
     var datesOpen by remember { mutableStateOf(false) }
+    var paymentMemberId by remember { mutableStateOf<Int?>(null) }
     var query by remember { mutableStateOf("") }
     var selectedId by remember { mutableIntStateOf(1) }
     fun persist(next: GymState) { state = next; GymStorage.save(context, next) }
@@ -110,8 +111,8 @@ private fun GymPilotApp() {
                     Page.Home -> Dashboard(state, { page = it }, { addOpen = true }, { selectedId = it; page = Page.Profile })
                     Page.Members -> MembersScreen(state, query, { query = it }, { checkIn(it) }, { selectedId = it; page = Page.Profile })
                     Page.Attendance -> AttendanceScreen(state, { checkIn(it) }, { selectedId = it; page = Page.Profile })
-                    Page.Dues -> DuesScreen(state, { paid(it) }, { selectedId = it; page = Page.Profile })
-                    Page.Profile -> if (member != null) MemberProfile(state, member, { checkIn(it) }, { paid(it) }, { datesOpen = true }) else EmptyState("Member not found", "Return to the directory and choose a member.")
+                    Page.Dues -> DuesScreen(state, { paymentMemberId = it }, { selectedId = it; page = Page.Profile })
+                    Page.Profile -> if (member != null) MemberProfile(state, member, { checkIn(it) }, { paymentMemberId = it }, { datesOpen = true }) else EmptyState("Member not found", "Return to the directory and choose a member.")
                     Page.Plans -> PlanSettings(state.plans) { edits ->
                         val plans = state.plans.map { p ->
                             val e = edits[p.id]
@@ -128,6 +129,14 @@ private fun GymPilotApp() {
             persist(state.copy(members = listOf(created) + state.members, nextMemberId = state.nextMemberId + 1))
             selectedId = created.id; page = Page.Profile; addOpen = false
         }
+        if (paymentMemberId != null) PaymentMethodDialog(
+            onDismiss = { paymentMemberId = null },
+            onConfirm = { method ->
+                val id = paymentMemberId
+                if (id != null) paid(id, method)
+                paymentMemberId = null
+            }
+        )
         if (datesOpen && member != null) EditDatesDialog(member, { datesOpen = false }) { start, expiry, due ->
             val updated = member.copy(startDate = start, expiryDate = expiry, dueDate = due)
             persist(state.copy(members = state.members.map { if (it.id == updated.id) updated else it }))
