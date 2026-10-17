@@ -108,7 +108,7 @@ private fun GymPilotApp() {
             Box(Modifier.padding(padding)) {
                 when(page) {
                     Page.Home -> Dashboard(state, { page = it }, { addOpen = true }, { selectedId = it; page = Page.Profile })
-                    Page.Members -> MembersScreen(state.members, query, { query = it }, { checkIn(it) }, { selectedId = it; page = Page.Profile })
+                    Page.Members -> MembersScreen(state, query, { query = it }, { checkIn(it) }, { selectedId = it; page = Page.Profile })
                     Page.Attendance -> AttendanceScreen(state, { checkIn(it) }, { selectedId = it; page = Page.Profile })
                     Page.Dues -> DuesScreen(state, { paid(it) }, { selectedId = it; page = Page.Profile })
                     Page.Profile -> if (member != null) MemberProfile(state, member, { checkIn(it) }, { paid(it) }, { datesOpen = true }) else EmptyState("Member not found", "Return to the directory and choose a member.")
@@ -208,7 +208,9 @@ private fun Quick(label: String, icon: androidx.compose.ui.graphics.vector.Image
     }
 }
 @Composable
-private fun MembersScreen(members: List<GymMember>, query: String, onQuery: (String) -> Unit, onToggle: (Int) -> Unit, onProfile: (Int) -> Unit) {
+private fun MembersScreen(state: GymState, query: String, onQuery: (String) -> Unit, onToggle: (Int) -> Unit, onProfile: (Int) -> Unit) {
+    val members = state.members
+    val checkedIds = state.attendance.filter { it.day == LocalDate.now().toString() }.map { it.memberId }.toSet()
     val filtered = members.filter { it.name.contains(query, true) || it.phone.contains(query, true) }
     Column(Modifier.fillMaxSize().padding(horizontal = 19.dp)) {
         Spacer(Modifier.height(17.dp)); Text("Members", fontSize = 27.sp, fontWeight = FontWeight.Bold, color = Ink)
@@ -218,7 +220,7 @@ private fun MembersScreen(members: List<GymMember>, query: String, onQuery: (Str
         Spacer(Modifier.height(11.dp))
         if (filtered.isEmpty()) EmptyState("No members found", "Try another name or phone number.")
         else LazyColumn(verticalArrangement = Arrangement.spacedBy(9.dp), contentPadding = PaddingValues(bottom = 16.dp)) {
-            items(filtered, key = { it.id }) { m -> MemberCard(m, false, { onToggle(m.id) }, { onProfile(m.id) }) }
+            items(filtered, key = { it.id }) { m -> MemberCard(m, checkedIds.contains(m.id), { onToggle(m.id) }, { onProfile(m.id) }) }
         }
     }
 }
